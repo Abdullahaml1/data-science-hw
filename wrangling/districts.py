@@ -4,6 +4,18 @@ import heapq
 
 kHEADER = ["DISTRICT", "MARGIN"]
 
+def compute_margin(scores_list):
+    """
+    return the margin (the larges number - the second larges number)
+    """
+    scores_list.sort() # sorting the list 
+
+    if len(scores_list) <= 1 :
+        return 100.0
+
+    return scores_list[-1] - scores_list[-2]
+
+
 def district_margins(state_lines):
     """
     Return a dictionary with districts as keys, and the difference in
@@ -12,9 +24,30 @@ def district_margins(state_lines):
     @lines The csv rows that correspond to the districts of a single state
     """
 
+    scores_list = []
+    state_dict = {}
+    last_d  = None
+    for line in state_lines:
+        if not (line["D"] == "H" or " - " in line["D"] or line['GENERAL %'] ==''):
+            if last_d != line['D']:
+                #save the last one
+                if last_d != None:
+                    state_dict[int(last_d)] = compute_margin(scores_list)
+                last_d = line['D']
+                scores_list = []
+
+            scores_list.append(float(line['GENERAL %'][:-1].replace(',', '.')))
+
+    #save the last one
+    if last_d != None:
+        state_dict[int(last_d)] = compute_margin(scores_list)
+
+
+
     # Complete this function
-    return dict((int(x["D"]), 25.0) for x in state_lines if x["D"] and
-                not (x["D"] == "H" or " - " in x["D"]))
+    # return dict((int(x["D"]), 25.0) for x in state_lines if x["D"] and
+                # not (x["D"] == "H" or " - " in x["D"]))
+    return state_dict
 
 def all_states(lines):
     """
@@ -23,8 +56,29 @@ def all_states(lines):
     in one line of Python.
     """
 
+    states_list = []
+    last_state = None
+    for line in lines:
+        if last_state != line['STATE']:
+            last_state = line['STATE']
+            states_list.append(last_state)
+
+    # states_list = []
+    # last_state = None
+    # jumb = 20
+    # steps= 0
+    # i = 0
+    # while i < len(lines):
+    #     if last_state == lines[i]['STATE']:
+
+    #     if last_state != lines[i]['STATE']:
+    #         last_state = lines[i]['
+    #         states_list.append(last_state)
+
+    #     i =+ jumb
+
     # Complete this function
-    return set(["Alabama"])
+    return set(states_list)
 
 def all_state_rows(lines, state):
     """
@@ -35,8 +89,9 @@ def all_state_rows(lines, state):
     """
 
     # Complete/correct this function
-    for ii in lines[:10]:
-        yield ii
+    for line in lines:
+        if line['STATE'] == state:
+            yield line
 
 if __name__ == "__main__":
     # You shouldn't need to modify this part of the code
